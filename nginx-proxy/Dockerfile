@@ -1,4 +1,74 @@
-FROM jwilder/nginx-proxy:alpine
+## 以下、Apple Sillicon M1 Chip専用のnginx-proxyコンテナの内容
+# Use a specific version of golang to build both binaries
+FROM golang:1.14-alpine as gobuilder
+RUN apk add --no-cache git
+
+# Build docker-gen from scratch
+FROM gobuilder as dockergen
+
+# Download the sources for the given version
+ENV DOCKER_GEN_VERSION 0.7.4
+ADD https://github.com/jwilder/docker-gen/archive/${DOCKER_GEN_VERSION}.tar.gz sources.tar.gz
+
+# Move the sources into the right directory
+RUN tar -xzf sources.tar.gz && \
+  mkdir -p /go/src/github.com/jwilder/ && \
+  mv docker-gen-* /go/src/github.com/jwilder/docker-gen
+
+# Install the dependencies and make the docker-gen executable
+WORKDIR /go/src/github.com/jwilder/docker-gen
+RUN go get -v ./... && \
+  CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.buildVersion=${DOCKER_GEN_VERSION}" ./cmd/docker-gen
+
+# Build forego from scratch
+# Because this relies on golang workspaces, we need to use go < 1.8. 
+FROM gobuilder as forego
+
+# Download the sources for the given version
+ENV FOREGO_VERSION 0.16.1
+ADD https://github.com/jwilder/forego/archive/v${FOREGO_VERSION}.tar.gz sources.tar.gz
+
+# Move the sources into the right directory
+RUN tar -xzf sources.tar.gz && \
+  mkdir -p /go/src/github.com/ddollar/ && \
+  mv forego-* /go/src/github.com/ddollar/forego
+
+# Install the dependencies and make the forego executable
+WORKDIR /go/src/github.com/ddollar/forego/
+RUN go get -v ./... && \
+  CGO_ENABLED=0 GOOS=linux go build -o forego .
+
+# Build the final image
+FROM nginx:1.19.3-alpine
+LABEL maintainer="Jason Wilder mail@jasonwilder.com"
+
+# Install wget and install/updates certificates
+RUN apk add --no-cache --virtual .run-deps \
+  ca-certificates bash wget openssl \
+  && update-ca-certificates
+
+
+# Configure Nginx and apply fix for very long server names
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf \
+  && sed -i 's/worker_processes  1/worker_processes  auto/' /etc/nginx/nginx.conf
+
+# Install Forego + docker-gen
+COPY --from=forego /go/src/github.com/ddollar/forego/forego /usr/local/bin/forego
+COPY --from=dockergen /go/src/github.com/jwilder/docker-gen/docker-gen /usr/local/bin/docker-gen
+
+COPY network_internal.conf /etc/nginx/
+
+COPY . /app/
+WORKDIR /app/
+
+ENV DOCKER_HOST unix:///tmp/docker.sock
+
+VOLUME ["/etc/nginx/certs", "/etc/nginx/dhparam"]
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["forego", "start", "-r"]
+
+## 以上、Apple Sillicon M1 Chip専用のnginx-proxyコンテナの内容
 COPY ./certs /etc/nginx/certs
 RUN { \
   echo 'server_tokens off;'; \
