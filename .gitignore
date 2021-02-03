@@ -1,0 +1,8 @@
+data/html/**
+data/logs/**
+nginx-proxy/certs/**
+
+.env/**
+.DS_Store
+
+!.gitkeep
