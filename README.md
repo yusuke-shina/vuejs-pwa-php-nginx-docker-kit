@@ -3,11 +3,11 @@
 ## 内包されているコンテナ
 
 | コンテナ名   | 使用用途                          | バージョン                                |
-| :---------- | :------------------------------ | :-------------------------------- |
-| nginx-proxy | リバースプロキシ                   | 最新版（jwilder/nginx-proxy:alpine）              |
-| webapp      | VueJSを用いたフロントエンドWebサーバ | 最新版（nodejs:fpm-alpine）             |
-| webapi      | WebAPI用のWebサーバ               | 最新版（php:fpm-alpine）                |
-| apiapp      | WebAPI用のアプリケーションサーバ     | PHP7:7-fpm-alpine）                |
+| :---------- | :------------------------------ | :-------------------------------------- |
+| nginx-proxy | リバースプロキシ                   | 最新版（jwilder/nginx-proxy:alpine）     |
+| webapp      | VueJSを用いたフロントエンドWebサーバ | 最新版（nodejs:fpm-alpine）              |
+| webapi      | WebAPI用のWebサーバ               | 最新版（nginx:alpine）                   |
+| apiapp      | WebAPI用のアプリケーションサーバ     | PHP7版（php:7-fpm-alpine）              |
 | db          | データベースサーバ                  | 最新版（mariadb:latest）                |
 | phpmyadmin  | データベース管理システム             | 最新版（phpmyadmin/phpmyadmin:latest）  |
 
