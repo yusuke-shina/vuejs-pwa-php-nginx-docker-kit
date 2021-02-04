@@ -1,9 +1,8 @@
-# PHP x VueJS x NginxのためのDocker Kit
+# PHP x VueJS x NginxのためのDocker Kit（Apple silicon M1チップをご利用の方用）
 
-## Apple silicon M1チップをご利用の方
+## Intel製CPU搭載PCの方
 
-現在、本ブランチではご利用ができません。
-[`version/for-m1-chip`](https://github.com/yusuke-shina/vuejs-pwa-php-nginx-docker-kit/tree/version/for-m1-chip)ブランチにチェックアウトしていただきご利用ください。
+Intel製CPU搭載PCの方は、[`main`](https://github.com/yusuke-shina/vuejs-pwa-php-nginx-docker-kit/tree/main)ブランチにチェックアウトしていただきご利用ください。
 
 ## 内包されているコンテナ
 
