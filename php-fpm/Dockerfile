@@ -25,8 +25,3 @@ RUN apk upgrade && \
       xdebug
 
 WORKDIR /var/www/html
-
-COPY ./php-fpm/init.sh /init.sh
-RUN chmod 744 /init.sh
-
-ENTRYPOINT ["/init.sh"]
